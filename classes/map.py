@@ -3,10 +3,10 @@ from config import *
 
 class GameMap:
     def __init__(self):
-        # Simple path as a list of points
+        # Example path
         self.path = [(50, 50), (750, 50), (750, 550), (50, 550)]
 
-    def draw(self, win):
+    def draw(self, WIN):
         # Draw path
-        if len(self.path) > 1:
-            pygame.draw.lines(win, GREEN, False, self.path, 5)
+        for i in range(len(self.path)-1):
+            pygame.draw.line(WIN, WHITE, self.path[i], self.path[i+1], 5)

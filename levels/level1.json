@@ -1,10 +1,28 @@
 {
   "waves": [
-    {
-      "enemy_type": "basic",
-      "count": 5,
-      "enemy_type_2": "fast",
-      "count_2": 7
-    }
+    [
+      {"type": "basic", "count": 5},
+      {"type": "fast", "count": 7}
+    ],
+    [
+      {"type": "fast", "count": 8},
+      {"type": "basic", "count": 15}
+    ],
+    [
+      {"type": "tank", "count": 5},
+      {"type": "fast", "count": 15}
+    ],
+    [
+      {"type": "tank", "count": 10},
+      {"type": "fast", "count": 22},
+      {"type": "basic", "count": 50}
+    ],
+    [
+      {"type": "tank", "count": 20},
+      {"type": "fast", "count": 50},
+      {"type": "basic", "count": 75},
+      {"type": "tank", "count": 25},
+      {"type": "basic", "count": 150}
+    ]
   ]
 }

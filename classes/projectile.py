@@ -1,5 +1,4 @@
 import pygame
-from config import *
 
 class Projectile:
     def __init__(self, x, y, target, damage):
@@ -7,29 +6,23 @@ class Projectile:
         self.y = y
         self.target = target
         self.damage = damage
-        self.speed = 7
-        self.active = True
+        self.speed = 5
 
     def move(self):
-        if self.target.health <= 0:
-            self.active = False
-            return
-        dir_x = self.target.x - self.x
-        dir_y = self.target.y - self.y
-        dist = (dir_x**2 + dir_y**2)**0.5
-        if dist == 0:
-            return
-        dir_x /= dist
-        dir_y /= dist
-        self.x += dir_x * self.speed
-        self.y += dir_y * self.speed
+        dx = self.target.x - self.x
+        dy = self.target.y - self.y
+        dist = (dx**2 + dy**2)**0.5
+        if dist != 0:
+            self.x += dx / dist * self.speed
+            self.y += dy / dist * self.speed
 
     def hit_target(self):
-        dist = ((self.target.x - self.x)**2 + (self.target.y - self.y)**2)**0.5
-        if dist < 10:
+        dx = self.target.x - self.x
+        dy = self.target.y - self.y
+        if (dx**2 + dy**2)**0.5 < 5:
             self.target.health -= self.damage
             return True
         return False
 
-    def draw(self, win):
-        pygame.draw.circle(win, WHITE, (int(self.x), int(self.y)), 5)
+    def draw(self, WIN):
+        pygame.draw.circle(WIN, (255, 255, 0), (int(self.x), int(self.y)), 5)

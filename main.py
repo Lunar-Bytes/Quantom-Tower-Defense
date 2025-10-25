@@ -14,8 +14,8 @@ clock = pygame.time.Clock()
 
 # Load level waves
 with open("levels/level1.json") as f:
-    level_data = json.load(f)
-waves = level_data["waves"]
+    levels = json.load(f)
+waves = levels["waves"]
 
 # Game objects
 game_map = GameMap()
@@ -27,6 +27,7 @@ projectiles = []
 base_health = BASE_HEALTH_START
 cash = START_CASH
 wave_number = 0
+current_wave_enemies = []
 spawn_timer = 0
 spawn_interval = 60
 
@@ -42,42 +43,21 @@ tower_bar_slots = ["normal", "sniper", "quick_attacker", None, None]
 # Font
 font = pygame.font.SysFont("arial", 20)
 
-# Current wave enemies queue
-current_wave_enemies = []
-
 # Start next wave
 def start_next_wave():
     global wave_number, current_wave_enemies
     if wave_number < len(waves):
-        wave = waves[wave_number]
         current_wave_enemies = []
-
-        # Collect all enemy types dynamically (supports any number of enemy types)
-        for key, value in wave.items():
-            if "enemy_type" in key:
-                count_key = "count" + key[10:] if key != "enemy_type" else "count"
-                current_wave_enemies.append({
-                    "type": value,
-                    "count": wave[count_key]
-                })
-
+        wave = waves[wave_number]
+        for enemy_info in wave:
+            current_wave_enemies.append(enemy_info.copy())
         wave_number += 1
 
 start_next_wave()
 
-# Create enemy based on type
-def create_enemy(enemy_type, path):
-    e = Enemy(path)
-    if enemy_type == "fast":
-        e.speed *= 1.5
-        e.health = e.max_health = 20
-    elif enemy_type == "tank":
-        e.speed *= 0.7
-        e.health = e.max_health = 50
-    else:  # basic or any new type
-        e.health = e.max_health = 10
-        e.speed = 1
-    return e
+# Create enemy
+def create_enemy(enemy_type):
+    return Enemy(game_map.path, enemy_type)
 
 running = True
 while running:
@@ -90,18 +70,18 @@ while running:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
-            # Tower bar click
             clicked_bar = False
+            # Tower bar
             for i in range(MAX_TOWER_SLOTS):
                 slot_x = tower_bar_start_x + i * (TOWER_BAR_WIDTH + TOWER_BAR_PADDING)
                 rect = pygame.Rect(slot_x, tower_bar_y, TOWER_BAR_WIDTH, TOWER_BAR_HEIGHT)
                 tower_type = tower_bar_slots[i]
-                if rect.collidepoint(x, y) and tower_type in TOWER_TYPES:
+                if tower_type and rect.collidepoint(x, y):
                     selected_tower_type = tower_type
                     clicked_bar = True
                     break
             if not clicked_bar:
-                # Click existing tower
+                # Existing tower select
                 clicked_tower = None
                 for t in towers:
                     if (t.x - x)**2 + (t.y - y)**2 <= 15**2:
@@ -111,18 +91,18 @@ while running:
                     selected_tower = clicked_tower
                 else:
                     # Place tower
-                    if selected_tower_type in TOWER_TYPES:
+                    if selected_tower_type and selected_tower_type in TOWER_TYPES:
                         cost = TOWER_TYPES[selected_tower_type]["cost"]
                         if cash >= cost:
                             towers.append(Tower(x, y, selected_tower_type))
                             cash -= cost
                             selected_tower = None
 
-    # Spawn enemies from current wave
+    # Spawn enemies
     if current_wave_enemies:
         if spawn_timer <= 0:
             enemy_info = current_wave_enemies[0]
-            enemies.append(create_enemy(enemy_info["type"], game_map.path))
+            enemies.append(create_enemy(enemy_info["type"]))
             enemy_info["count"] -= 1
             if enemy_info["count"] <= 0:
                 current_wave_enemies.pop(0)
@@ -147,11 +127,11 @@ while running:
     # Update projectiles
     for proj in projectiles[:]:
         proj.move()
-        if proj.target.health <= 0 or proj.hit_target():
+        if proj.hit_target():
             projectiles.remove(proj)
 
     # Next wave
-    if not current_wave_enemies and not enemies and wave_number < len(waves):
+    if not current_wave_enemies and len(enemies) == 0 and wave_number < len(waves):
         start_next_wave()
 
     # Draw map, enemies, towers, projectiles
@@ -175,7 +155,7 @@ while running:
     for i in range(MAX_TOWER_SLOTS):
         slot_x = tower_bar_start_x + i * (TOWER_BAR_WIDTH + TOWER_BAR_PADDING)
         rect = pygame.Rect(slot_x, tower_bar_y, TOWER_BAR_WIDTH, TOWER_BAR_HEIGHT)
-        pygame.draw.rect(WIN, (50,50,50), rect)
+        pygame.draw.rect(WIN, (50, 50, 50), rect)
         pygame.draw.rect(WIN, WHITE, rect, 2)
         tower_type = tower_bar_slots[i]
         if tower_type and tower_type in TOWER_TYPES:
