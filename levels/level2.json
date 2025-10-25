@@ -1,0 +1,12 @@
+{
+  "waves": [
+    [
+      {"type": "tank", "count": 5},
+      {"type": "fast", "count": 10}
+    ],
+    [
+      {"type": "fast", "count": 25},
+      {"type": "tank", "count": 15}
+    ]
+  ]
+}

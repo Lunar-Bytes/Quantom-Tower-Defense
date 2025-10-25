@@ -40,3 +40,9 @@ ENEMY_SPEEDS = {
     "fast": 2.0,
     "tank": 0.5
 }
+
+ENEMY_REWARDS = {
+    "basic": 10,
+    "fast": 15,
+    "tank": 25
+}
