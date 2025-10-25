@@ -1,0 +1,10 @@
+{
+  "waves": [
+    {
+      "enemy_type": "basic",
+      "count": 5,
+      "enemy_type_2": "fast",
+      "count_2": 7
+    }
+  ]
+}
