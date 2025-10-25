@@ -36,7 +36,7 @@ ENEMY_COLORS = {
 }
 
 # Enemy cash reward
-ENEMY_CASH = {
+ENEMY_REWARD = {
     "basic": 10,
     "fast": 15,
     "tank": 30
