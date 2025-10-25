@@ -43,105 +43,23 @@ tower_bar_slots = ["normal", "sniper", "quick_attacker", None, None]
 # Font
 font = pygame.font.SysFont("arial", 20)
 
-# ---------------- Editor Variables ----------------
-editor_active = False
-editor_waves = [wave.copy() for wave in waves]  # copy current waves
-editor_current_wave = []
-editor_selected_type = "basic"
-editor_selected_count = 1
-# --------------------------------------------------
-
-# Start next wave
+# ------------------- Functions -------------------
 def start_next_wave():
     global wave_number, current_wave_enemies
     if wave_number < len(waves):
-        current_wave_enemies = []
-        for enemy_info in waves[wave_number]:
-            current_wave_enemies.append(enemy_info.copy())
+        current_wave_enemies = waves[wave_number][:]
         wave_number += 1
 
+def create_enemy(enemy_type):
+    return Enemy(game_map.path, enemy_type)
+
+# ------------------- Main Loop -------------------
+running = True
 start_next_wave()
 
-# Create enemy based on type
-def create_enemy(enemy_type, path=game_map.path):
-    e = Enemy(path)
-    if enemy_type == "fast":
-        e.speed *= 1.5
-        e.health = e.max_health = 20
-    elif enemy_type == "tank":
-        e.speed *= 0.7
-        e.health = e.max_health = 50
-    else:  # basic or others
-        e.speed = 1
-        e.health = e.max_health = 10
-    return e
-
-# ---------------- Editor Functions ----------------
-def draw_editor():
-    WIN.fill((40,40,40))
-    y = 10
-    WIN.blit(font.render(f"Wave Editor (CTRL+SHIFT+E to exit)", True, (255,255,255)), (10,y))
-    y += 30
-    WIN.blit(font.render(f"Selected Type: {editor_selected_type}  Count: {editor_selected_count}", True, (255,255,0)), (10,y))
-    y += 30
-    WIN.blit(font.render("Current Wave:", True, (180,180,180)), (10,y))
-    y += 20
-    for e in editor_current_wave:
-        WIN.blit(font.render(f"{e['type']} x {e['count']}", True, (180,180,250)), (20, y))
-        y += 20
-    y += 10
-    WIN.blit(font.render("Keys: 1-basic 2-fast 3-tank UP/DOWN-count A-add enemy N-new wave S-save", True, (200,200,200)), (10, HEIGHT-30))
-    pygame.display.update()
-
-def handle_editor_event(event):
-    global editor_selected_type, editor_selected_count, editor_current_wave, editor_waves
-    if event.type == pygame.KEYDOWN:
-        if event.key == pygame.K_1:
-            editor_selected_type = "basic"
-        elif event.key == pygame.K_2:
-            editor_selected_type = "fast"
-        elif event.key == pygame.K_3:
-            editor_selected_type = "tank"
-        elif event.key == pygame.K_UP:
-            editor_selected_count += 1
-        elif event.key == pygame.K_DOWN:
-            editor_selected_count = max(1, editor_selected_count-1)
-        elif event.key == pygame.K_a:
-            editor_current_wave.append({"type": editor_selected_type, "count": editor_selected_count})
-        elif event.key == pygame.K_n:
-            if editor_current_wave:
-                editor_waves.append(editor_current_wave)
-                editor_current_wave = []
-        elif event.key == pygame.K_s:
-            if editor_current_wave:
-                editor_waves.append(editor_current_wave)
-            with open("levels/level1.json", "w") as f:
-                json.dump({"waves": editor_waves}, f, indent=2)
-            print("Saved level1.json")
-            editor_waves = []
-            editor_current_wave = []
-# --------------------------------------------------
-
-running = True
 while running:
     clock.tick(FPS)
-
-    keys = pygame.key.get_pressed()
-    ctrl_shift_e = keys[pygame.K_LCTRL] and keys[pygame.K_LSHIFT] and keys[pygame.K_e]
-    if ctrl_shift_e:
-        editor_active = True
-
-    if editor_active:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            handle_editor_event(event)
-            if event.type == pygame.KEYDOWN and ctrl_shift_e:
-                editor_active = False  # exit editor
-        draw_editor()
-        continue  # skip game update while editor active
-
-    WIN.fill((20, 20, 20))
+    WIN.fill(BLACK)
 
     # ---------------- Events ----------------
     for event in pygame.event.get():
@@ -149,29 +67,48 @@ while running:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
-            # Tower bar click
-            clicked_bar = False
-            for i in range(MAX_TOWER_SLOTS):
-                slot_x = tower_bar_start_x + i * (TOWER_BAR_WIDTH + TOWER_BAR_PADDING)
-                rect = pygame.Rect(slot_x, tower_bar_y, TOWER_BAR_WIDTH, TOWER_BAR_HEIGHT)
-                tower_type = tower_bar_slots[i]
-                if rect.collidepoint(x, y) and tower_type:
-                    if tower_type in TOWER_TYPES:
-                        selected_tower_type = tower_type
-                    clicked_bar = True
-                    break
-            if not clicked_bar:
-                # Place tower
-                if selected_tower_type in TOWER_TYPES and cash >= TOWER_TYPES[selected_tower_type]["cost"]:
-                    towers.append(Tower(x, y, selected_tower_type))
-                    cash -= TOWER_TYPES[selected_tower_type]["cost"]
-                    selected_tower = None
+            # Left click -> select/place tower
+            if event.button == 1:
+                clicked_bar = False
+                for i in range(MAX_TOWER_SLOTS):
+                    slot_x = tower_bar_start_x + i * (TOWER_BAR_WIDTH + TOWER_BAR_PADDING)
+                    rect = pygame.Rect(slot_x, tower_bar_y, TOWER_BAR_WIDTH, TOWER_BAR_HEIGHT)
+                    tower_type = tower_bar_slots[i]
+                    if rect.collidepoint(x, y) and tower_type:
+                        if tower_type in TOWER_TYPES:
+                            selected_tower_type = tower_type
+                        clicked_bar = True
+                        break
+                if not clicked_bar:
+                    # Check if clicked on tower
+                    clicked_tower = None
+                    for t in towers:
+                        if (t.x - x)**2 + (t.y - y)**2 <= 15**2:
+                            clicked_tower = t
+                            break
+                    if clicked_tower:
+                        selected_tower = clicked_tower
+                    else:
+                        # Place tower
+                        if selected_tower_type in TOWER_TYPES:
+                            cost = TOWER_TYPES[selected_tower_type]["cost"]
+                            if cash >= cost:
+                                towers.append(Tower(x, y, selected_tower_type))
+                                cash -= cost
+                                selected_tower = None
+            # Right click -> remove tower
+            elif event.button == 3:
+                for t in towers[:]:
+                    if (t.x - x)**2 + (t.y - y)**2 <= 15**2:
+                        towers.remove(t)
+                        cash += TOWER_TYPES[t.type]["cost"] // 2  # Refund half
+                        break
 
     # ---------------- Spawn enemies ----------------
     if current_wave_enemies:
         if spawn_timer <= 0:
             enemy_info = current_wave_enemies[0]
-            enemies.append(create_enemy(enemy_info["type"], game_map.path))
+            enemies.append(create_enemy(enemy_info["type"]))
             enemy_info["count"] -= 1
             if enemy_info["count"] <= 0:
                 current_wave_enemies.pop(0)
@@ -179,32 +116,33 @@ while running:
         else:
             spawn_timer -= 1
 
-    # ---------------- Update Enemies ----------------
+    # ---------------- Update enemies ----------------
     for enemy in enemies[:]:
         enemy.move()
         if enemy.health <= 0:
             enemies.remove(enemy)
-            cash += {"basic":10, "fast":15, "tank":30}.get(enemy.type, 10)
-        elif enemy.path_index >= len(enemy.path)-1:
+            cash += ENEMY_CASH.get(enemy.type, 10)
+        elif enemy.path_index >= len(enemy.path) - 1:
             enemies.remove(enemy)
             base_health -= 1
 
-    # ---------------- Update Towers ----------------
+    # ---------------- Update towers ----------------
     for tower in towers:
         tower.update(enemies, projectiles)
 
-    # ---------------- Update Projectiles ----------------
+    # ---------------- Update projectiles ----------------
     for proj in projectiles[:]:
         proj.move()
         if proj.target.health <= 0 or proj.hit_target():
             projectiles.remove(proj)
 
-    # Next wave
-    if not current_wave_enemies and enemies == [] and wave_number < len(waves):
+    # ---------------- Next wave ----------------
+    if not current_wave_enemies and len(enemies) == 0 and wave_number < len(waves):
         start_next_wave()
 
     # ---------------- Draw ----------------
     game_map.draw(WIN)
+
     for enemy in enemies:
         enemy.draw(WIN)
     for tower in towers:
@@ -212,12 +150,15 @@ while running:
     for proj in projectiles:
         proj.draw(WIN)
 
-    # UI
-    WIN.blit(font.render(f"Base Health: {base_health}", True, WHITE), (10,10))
-    WIN.blit(font.render(f"Wave: {wave_number}/{len(waves)}", True, WHITE), (WIDTH-150,10))
-    WIN.blit(font.render(f"Cash: ${cash}", True, WHITE), (WIDTH//2 - 50,10))
+    # ---------------- UI ----------------
+    base_text = font.render(f"Base Health: {base_health}", True, WHITE)
+    wave_text = font.render(f"Wave: {wave_number}/{len(waves)}", True, WHITE)
+    cash_text = font.render(f"Cash: ${cash}", True, WHITE)
+    WIN.blit(base_text, (10, 10))
+    WIN.blit(wave_text, (WIDTH - 150, 10))
+    WIN.blit(cash_text, (WIDTH//2 - 50, 10))
 
-    # Tower bar
+    # ---------------- Tower Bar ----------------
     for i in range(MAX_TOWER_SLOTS):
         slot_x = tower_bar_start_x + i * (TOWER_BAR_WIDTH + TOWER_BAR_PADDING)
         rect = pygame.Rect(slot_x, tower_bar_y, TOWER_BAR_WIDTH, TOWER_BAR_HEIGHT)
@@ -230,11 +171,12 @@ while running:
             cost_text = font.render(f"${TOWER_TYPES[tower_type]['cost']}", True, WHITE)
             WIN.blit(cost_text, (slot_x + 5, tower_bar_y + TOWER_BAR_HEIGHT - 20))
             if selected_tower_type == tower_type:
-                pygame.draw.rect(WIN, (255, 215, 0), rect, 3)
+                pygame.draw.rect(WIN, YELLOW, rect, 3)
 
-    # Game over
+    # ---------------- Game Over ----------------
     if base_health <= 0:
-        WIN.blit(font.render("GAME OVER", True, RED), (WIDTH//2-50, HEIGHT//2))
+        game_over_text = font.render("GAME OVER", True, RED)
+        WIN.blit(game_over_text, (WIDTH//2 - 50, HEIGHT//2))
         pygame.display.update()
         pygame.time.delay(3000)
         running = False
