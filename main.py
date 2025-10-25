@@ -13,10 +13,7 @@ pygame.init()
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("2D Tower Defense")
 clock = pygame.time.Clock()
-font = pygame.font.SysFont("assets/fonts/arcade.ttf", 20)
-
-upgrade_menu_open = False
-selected_tower = None
+font = pygame.font.SysFont("arial", 20)
 
 # === Level selection ===
 selected_level_file = level_select_screen()
@@ -145,7 +142,7 @@ while running:
         enemy.move()
         if enemy.health <= 0:
             enemies.remove(enemy)
-            cash += ENEMY_CASH.get(enemy.enemy_type, 10)
+            cash += ENEMY_REWARD.get(enemy.enemy_type, 10)
         elif enemy.path_index >= len(enemy.path) - 1:
             enemies.remove(enemy)
             base_health -= 1

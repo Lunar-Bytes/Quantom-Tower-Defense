@@ -17,9 +17,9 @@ def level_select_screen():
     pygame.init()
     WIDTH, HEIGHT = 800, 600
     WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Tower Defense")
+    pygame.display.set_caption("Level Select")
     clock = pygame.time.Clock()
-    font = pygame.font.SysFont("assets/fonts/arcade.ttf", 30)
+    font = pygame.font.SysFont("arial", 30)
 
     levels = [f for f in os.listdir(LEVEL_FOLDER) if f.endswith(".json")]
     levels.sort()

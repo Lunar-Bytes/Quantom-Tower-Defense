@@ -23,17 +23,7 @@ TOWER_TYPES = {
     "quick_attacker": {"cost": 75, "damage": 10, "range": 75, "cooldown": 15, "color": YELLOW}
 }
 
-UPGRADE_COST_MULTIPLIER = 1.5
-DAMAGE_UP_AMOUNT = 5
-RANGE_UP_AMOUNT = 25
-COOLDOWN_UP_AMOUNT = -5
-MIN_COOLDOWN = 5  # Never go below
-
-# XP System
-XP_PER_KILL = 1
-XP_TO_NEXT_LEVEL = 5
-
-# Base + Money
+# Base
 BASE_HEALTH_START = 20
 START_CASH = 200
 
@@ -46,7 +36,7 @@ ENEMY_COLORS = {
 }
 
 # Enemy cash reward
-ENEMY_CASH = {
+ENEMY_REWARD = {
     "basic": 10,
     "fast": 15,
     "tank": 30

@@ -4,10 +4,10 @@ REM Build Tower Defense Python game into a single EXE
 REM Includes classes/, utils/, levels/, assets/, config.py, level_select.py
 REM -----------------------------------------------------
 
-set EXE_NAME=TowerDefense
+set EXE_NAME=TowerDefense.exe
 
-ECHO [1/5]: Checking for output folder..
-if not exist output mkdir output
+ECHO [1/5]: Checking for pyinstaller folder..
+if not exist pyinstaller mkdir pyinstaller
 
 ECHO [2/5]: Deleting old build folders..
 if exist build rmdir /s /q build
@@ -18,7 +18,7 @@ if exist TowerDefense.exe.spec del TowerDefense.exe.spec
 REM Run PyInstaller with all folders included
 ECHO [3/5]: Building EXE using pyinstaller..
 pyinstaller --noconfirm --onefile --windowed ^
---distpath output ^
+--distpath pyinstaller ^
 --name %EXE_NAME% ^
 --add-data "levels;levels" ^
 --add-data "assets;assets" ^
@@ -26,7 +26,6 @@ pyinstaller --noconfirm --onefile --windowed ^
 --add-data "utils;utils" ^
 --add-data "config.py;." ^
 --add-data "level_select.py;." ^
---icon "pyinstaller_settings/icon.ico" ^
 main.py
 
 REM Clean up build files
