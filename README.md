@@ -1,24 +1,6 @@
 Hello! This is some info of the program:
 
-It is around 90% based on python, and 10% of json. To make your own levels for the game, go to levels and either add a new json file or modify the current ones, and use this json structure for each wave/level:
-
-{
-  "waves": [
-    [
-      {"type": "tank", "count": 25},
-      {"type": "basic", "count": 35},
-      {"type": "fast", "count": 45},
-      {"reward": "200"}
-    ],
-    [
-      {"type": "tank", "count": 50},
-      {"type": "basic", "count": 40},
-      {"type": "fast", "count": 64},
-      {"reward": "400"}
-    ]
-  ]
-}
-
+It is around 90% based on python, and 10% of json. To make your own levels for the game, go to levels and either add a new json file or modify the current ones, and use the json structure in level1.json.
 
 To make your own exe of the game, run build.bat. The output is in output folder.
 
