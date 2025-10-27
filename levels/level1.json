@@ -2,20 +2,24 @@
   "waves": [
     [
       {"type": "basic", "count": 5},
-      {"type": "fast", "count": 7}
+      {"type": "fast", "count": 7},
+      {"reward": "50"}
     ],
     [
       {"type": "fast", "count": 8},
-      {"type": "basic", "count": 15}
+      {"type": "basic", "count": 15},
+      {"reward": "75"}
     ],
     [
       {"type": "tank", "count": 5},
-      {"type": "fast", "count": 15}
+      {"type": "fast", "count": 15},
+      {"reward": "125"}
     ],
     [
       {"type": "tank", "count": 10},
       {"type": "fast", "count": 22},
-      {"type": "basic", "count": 50}
+      {"type": "basic", "count": 50},
+      {"reward": "175"}
     ],
     [
       {"type": "tank", "count": 20},

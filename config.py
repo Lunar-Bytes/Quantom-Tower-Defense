@@ -9,7 +9,8 @@ RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 PURPLE = (150, 0, 150)
 YELLOW = (255, 255, 0)
-BLACK = (0,0,0)
+BLACK = (0, 0, 0)
+CYAN = (0, 255, 255)
 
 # Tower settings
 TOWER_BAR_WIDTH = 60
@@ -20,7 +21,8 @@ MAX_TOWER_SLOTS = 5
 TOWER_TYPES = {
     "normal": {"cost": 50, "damage": 5, "range": 100, "cooldown": 30, "color": BLUE},
     "sniper": {"cost": 150, "damage": 20, "range": 200, "cooldown": 60, "color": PURPLE},
-    "quick_attacker": {"cost": 75, "damage": 10, "range": 75, "cooldown": 15, "color": YELLOW}
+    "quick_attacker": {"cost": 225, "damage": 5, "range": 50, "cooldown": 15, "color": YELLOW},
+    "freezer": {"cost": 100, "damage": 0, "range": 100, "cooldown": 60, "color": CYAN, "slow_amount": 0.5, "slow_duration": 120}
 }
 
 # Base

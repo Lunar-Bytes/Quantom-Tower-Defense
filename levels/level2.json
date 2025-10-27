@@ -1,12 +1,16 @@
 {
   "waves": [
     [
-      {"type": "tank", "count": 5},
-      {"type": "fast", "count": 10}
+      {"type": "tank", "count": 25},
+      {"type": "basic", "count": 35},
+      {"type": "fast", "count": 45},
+      {"reward": "200"}
     ],
     [
-      {"type": "fast", "count": 25},
-      {"type": "tank", "count": 15}
+      {"type": "tank", "count": 50},
+      {"type": "basic", "count": 40},
+      {"type": "fast", "count": 64},
+      {"reward": "400"}
     ]
   ]
 }
