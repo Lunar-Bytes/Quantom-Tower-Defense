@@ -1,6 +1,7 @@
 Hello! This is some info of the program:
 
 It is around 90% based on python, and 10% of json. To make your own levels for the game, go to levels and either add a new json file or modify the current ones, and use this json structure for each wave/level:
+
 {
   "waves": [
     [
